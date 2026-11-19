@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foster Bright | Software Engineer &amp; Game Systems Developer</title>
+<meta name="description" content="Foster Bright, Computer Science (Software Engineering) senior at Arizona State University in Tempe, Arizona. Walk through a first-person resume: multiplayer networking, audio DSP, web APIs and 3D animation tooling.">
+<meta property="og:title" content="Foster Bright | Software Engineer &amp; Game Systems Developer"><meta property="og:type" content="website"><meta property="og:url" content="https://fosterbright18.github.io/">
+<meta property="og:description" content="A walkable first-person resume. Or read it as a page."><meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Foster Bright","jobTitle":"Software Engineer & Game Systems Developer","url":"https://fosterbright18.github.io/","sameAs":["https://github.com/FosterBright18"],"address":{"@type":"PostalAddress","addressLocality":"Tempe","addressRegion":"AZ","addressCountry":"US"},"alumniOf":{"@type":"CollegeOrUniversity","name":"Arizona State University"}}</script>
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="stage"></div><div id="cross" hidden></div><div id="prompt" hidden></div><button id="tbtn" hidden>Interact</button><div id="toast" role="status" aria-live="polite"></div>
+<a id="skip" href="#page">Skip the walk, read it as a page</a>
+
+<section id="load"><p id="lt">Loading</p><div id="bar"><i></i></div></section>
+<noscript><section class="ns"><h1>Foster Bright</h1><p>Software Engineer &amp; Game Systems Developer, Tempe, Arizona. B.S. Computer Science (Software Engineering), Arizona State University, expected 2027. Software Development Intern, Pixel Pirate Studio (UNOMi 3D Animation Plugin). <a href="https://github.com/FosterBright18">GitHub</a>. This site needs JavaScript.</p></section></noscript>
+
+<section id="start" hidden><div class="col">
+  <p class="mono">Tempe, Arizona</p><h1>Foster Bright</h1><p class="lead">Software Engineer &amp; Game Systems Developer. Walk through the resume, or take the guided path.</p>
+  <p><button class="go" id="enter">Enter</button></p>
+  <p><button id="tourbtn">Recruiter path (about 60 seconds)</button></p><p><button data-page>Skip the walk, read it as a page</button></p>
+  <p class="mono keys">Move WASD / arrows. Look with the mouse. Run Shift. Interact E. Map and settings M or Esc. Touch: left thumb moves, right thumb looks.</p>
+</div></section>
+
+<aside id="panel" hidden role="dialog" aria-modal="true" aria-label="Details"><button data-close>Close</button><div id="pbody"></div></aside>
+
+<section id="menu" hidden role="dialog" aria-modal="true" aria-label="Map and settings"><div class="col">
+  <h2>Paused</h2><p><button class="go" id="resumebtn">Resume</button></p>
+  <h3>Go to</h3><div id="areas" class="list"></div>
+  <p><button id="tour2">Recruiter path</button><button data-page>Read as a page</button><button id="menuresume">Print resume</button><button id="txt">Download plain text</button></p>
+  <h3>Settings</h3>
+  <label>Look sensitivity <input id="sens" type="range" min=".3" max="2.5" step=".1" value="1"></label>
+  <label>Field of view <input id="fov" type="range" min="55" max="95" step="1" value="70"></label>
+  <label><input id="inv" type="checkbox"> Invert Y</label><label><input id="bob" type="checkbox"> Head bob</label><label><input id="aud" type="checkbox"> Room tone and footsteps</label>
+</div></section>
+
+<main id="page" hidden></main>
+<div id="resume"></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

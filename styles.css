@@ -1,0 +1,34 @@
+:root{--bg:#12110e;--ink:#efe8da;--mu:#a39b8a;--acc:#ff5a1f}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.55 "Bahnschrift","Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;overflow:hidden}
+.mono{font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--mu);letter-spacing:.02em}
+#stage{position:fixed;inset:0}#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+a{color:var(--acc)}:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+button{font:inherit;color:var(--ink);background:none;border:0;padding:.5em 1.2em .5em 0;cursor:pointer;text-decoration:underline;text-underline-offset:.3em;text-decoration-color:var(--mu)}
+button:hover{text-decoration-color:var(--acc)}button.go{background:var(--acc);color:#1a0a03;font-weight:700;text-decoration:none;padding:.7em 1.6em;margin-right:1em}
+h1{font-size:clamp(44px,9vw,92px);line-height:.95;margin:.1em 0 .25em;letter-spacing:-.01em;text-transform:uppercase}h2{font-size:28px;line-height:1.1;margin:.2em 0 .4em}h3{font:700 13px ui-monospace,Menlo,monospace;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;margin:1.8em 0 .4em}
+.lead{font-size:19px;color:#d6cfbf;max-width:34em}.col{max-width:660px;margin:0 auto;padding:7vh 24px}
+#load,#start,#menu,#page{position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto}#load{display:grid;place-content:center;gap:14px;text-align:center;z-index:30}
+#bar{width:260px;height:2px;background:#2b2924}#bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+#start,#menu{background:rgba(18,17,14,.93)}.keys{margin-top:2.5em;max-width:30em}
+#panel{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);z-index:25;background:rgba(18,17,14,.96);overflow:auto;padding:28px 32px 48px}
+#panel dt,#menu label{display:block}dt{font-weight:700;margin-top:1em}dd{margin:.1em 0 0;color:#d6cfbf}li{margin:.35em 0}ul{padding-left:1.1em}
+.links a{margin-right:1.4em}.note{color:var(--acc);font:13px ui-monospace,monospace}.list button{display:block}
+#menu label{margin:.8em 0;color:var(--mu)}#menu input[type=range]{display:block;width:260px;accent-color:#ff5a1f}
+#cross{position:fixed;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:var(--ink);opacity:.8;z-index:5}
+#prompt{position:fixed;left:50%;bottom:11vh;transform:translateX(-50%);z-index:6;font:14px ui-monospace,Menlo,monospace;background:rgba(18,17,14,.82);padding:.5em .9em}#prompt b{color:var(--acc);margin-right:.5em}
+#toast{position:fixed;left:50%;bottom:5vh;transform:translate(-50%,10px);opacity:0;transition:.25s;z-index:40;background:var(--acc);color:#1a0a03;font-weight:700;padding:.6em 1.1em;max-width:90vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+#skip{position:fixed;left:16px;bottom:14px;z-index:12;font:12px ui-monospace,Menlo,monospace;color:var(--mu)}
+#tbtn{position:fixed;right:22px;bottom:30px;z-index:8;background:var(--acc);color:#1a0a03;font-weight:700;padding:1em 1.4em;text-decoration:none;border-radius:999px}
+#page .pn{font:700 22px "Bahnschrift","Arial Narrow",sans-serif;color:var(--ink);text-transform:none;letter-spacing:0;margin-top:2.4em}#page section{margin-top:2.5em;border-top:1px solid #ffffff1c;padding-top:.5em}
+.ns{padding:24px;position:relative;z-index:50;background:var(--bg)}
+#resume{display:none;position:fixed;inset:0;z-index:50;overflow:auto;background:rgba(10,9,8,.92);padding:18px}#resume.show{display:block}
+.rbar{max-width:8.5in;margin:0 auto 10px;text-align:right}.sheet{max-width:8.5in;margin:0 auto;background:#fff;color:#111;padding:.55in .6in;font:10.5pt/1.4 Georgia,"Times New Roman",serif}
+.sheet h1{font:700 24pt Georgia,serif;text-transform:none;margin:0 0 4px;letter-spacing:0}.sheet h2{font:700 10.5pt Georgia,serif;text-transform:uppercase;letter-spacing:.08em;margin:12px 0 3px;padding-bottom:2px;border-bottom:1px solid #999}
+.sheet p{margin:3px 0}.sheet ul{margin:2px 0 4px;padding-left:18px}.sheet li{margin:1px 0}
+@media print{
+  @page{margin:.45in}html,body{background:#fff!important;overflow:visible;height:auto}
+  body>*:not(#resume){display:none!important}#resume{display:block!important;position:static;background:#fff;padding:0;overflow:visible}.rbar{display:none!important}
+  .sheet{padding:0;max-width:none;font-size:9.4pt;line-height:1.3}.sheet h1{font-size:21pt}.sheet h2{margin-top:7px}.sheet p,.sheet li{break-inside:avoid}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
