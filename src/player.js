@@ -23,7 +23,7 @@ export class Player {
   runTour(dt) {
     const t = this.tour, w = t.w[t.i]; if (!w) return this.stopTour();
     const dx = w[0] - this.p.x, dz = w[1] - this.p.z, d = Math.hypot(dx, dz);
-    if (d > .06) { const s = Math.min(d, 2.6 * dt); this.p.x += dx / d * s; this.p.z += dz / d * s; this.stepT += s; if (this.stepT > 1.6) { this.stepT = 0; footstep(); } }
+    if (d > .06) { const s = Math.min(d, 2.7 * dt); this.p.x += dx / d * s; this.p.z += dz / d * s; this.stepT += s; if (this.stepT > 1.6) { this.stepT = 0; footstep(); } }
     else if ((t.wait += dt) >= w[4]) { t.i++; t.wait = 0; }
     const want = Math.atan2(-(w[2] - this.p.x), -(w[3] - this.p.z)); let dy = want - this.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
     this.yaw += dy * Math.min(1, dt * 2.5); this.pitch *= 1 - Math.min(1, dt * 3);
@@ -34,7 +34,7 @@ export class Player {
     else if (this.active) {
       let f = (k.KeyW || k.ArrowUp ? 1 : 0) - (k.KeyS || k.ArrowDown ? 1 : 0) - this.stick[1], r = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0) + this.stick[0];
       const l = Math.hypot(f, r); if (l > 1) { f /= l; r /= l; }
-      const run = k.ShiftLeft || k.ShiftRight, sp = (run ? 5.4 : 3.2) * dt, sy = Math.sin(this.yaw), cy = Math.cos(this.yaw);
+      const run = k.ShiftLeft || k.ShiftRight, sp = (run ? 5.6 : 3.3) * dt, sy = Math.sin(this.yaw), cy = Math.cos(this.yaw);
       if (l > .05) { moving = true; this.p.x += (-sy * f + cy * r) * sp; this.p.z += (-cy * f - sy * r) * sp; resolve(this.p, .35);
         this.bobT += dt * (run ? 10 : 7); this.stepT += sp; if (this.stepT > (run ? 2.2 : 1.6)) { this.stepT = 0; footstep(); } }
     }
