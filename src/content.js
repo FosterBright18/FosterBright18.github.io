@@ -3,7 +3,7 @@
 export const C = {
   name: 'Foster Bright', title: 'Software Engineer & Game Systems Developer', loc: 'Tempe, Arizona',
   gh: 'https://github.com/FosterBright18', site: 'https://fosterbright18.github.io/',
-  email: '[EMAIL PLACEHOLDER]', linkedin: '[LINKEDIN URL PLACEHOLDER]',
+  email: 'fosterbright18@gmail.com', linkedin: '[LINKEDIN URL PLACEHOLDER]',
   summary: 'Computer Science senior at Arizona State University. I build full-stack web applications, real-time multiplayer networking, DSP and audio tooling, and cross-platform 3D animation pipelines.',
   facts: [['Location', 'Tempe, Arizona'], ['Graduation', 'Expected 2027'], ['Role interests', '[ROLE INTERESTS PLACEHOLDER]'],
     ['Availability', '[AVAILABILITY PLACEHOLDER]'], ['Work authorization', '[WORK AUTHORIZATION PLACEHOLDER]'], ['Contact', 'Business cards in the contact office']],
