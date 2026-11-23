@@ -677,9 +677,9 @@ export async function build(sc, hk, step, renderer) {
   faceRig.position.set(-2.75, 1.62, -27.32);
   scene.add(faceRig);
   const headMat = new THREE.MeshStandardMaterial({ color: 0x3b4048, roughness: 0.48, metalness: 0.25 });
-  const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.27, 24, 18), headMat);
-  headMesh.scale.set(0.92, 1.12, 0.96);
-  faceRig.add(headMesh);
+  const faceHeadMesh = new THREE.Mesh(new THREE.SphereGeometry(0.27, 24, 18), headMat);
+  faceHeadMesh.scale.set(0.92, 1.12, 0.96);
+  faceRig.add(faceHeadMesh);
   // Subtle visor collar
   const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 0.16, 16), mat.steel);
   collar.position.set(0, -0.32, 0);
@@ -1142,6 +1142,8 @@ export async function build(sc, hk, step, renderer) {
   scene.add(ledMesh);
   flushStatic(mat);
 
+  let rainGlassActive = true;
+
   // Ambient animation loop (city traffic, rain, aviation beacons, LEDs, flicker, steam)
   anim.push((t, dt) => {
     steamBoost = Math.max(0, steamBoost - dt);
@@ -1236,7 +1238,6 @@ export async function build(sc, hk, step, renderer) {
     }
   });
 
-  let rainGlassActive = true;
   function quality(lvl) {
     if (lvl === 'low') {
       rainMesh.visible = false;
