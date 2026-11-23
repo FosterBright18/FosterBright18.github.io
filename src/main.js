@@ -21,7 +21,9 @@ async function boot() {
   try { const [a, b, c, d] = await Promise.all(['EffectComposer', 'RenderPass', 'UnrealBloomPass', 'OutputPass'].map(n => import(`three/addons/postprocessing/${n}.js`)));
     composer = new a.EffectComposer(renderer); composer.addPass(new b.RenderPass(scene, cam)); composer.addPass(new c.UnrealBloomPass(new THREE.Vector2(innerWidth >> 1, innerHeight >> 1), .8, .55, .9)); composer.addPass(new d.OutputPass()); } catch {}
   const applyQ = l => { level = l; bloomOn = !!composer && l === 'high'; const pr = Math.min(devicePixelRatio, l === 'low' ? 1 : touch ? 1.5 : 2); renderer.setPixelRatio(pr); renderer.setSize(innerWidth, innerHeight);
-    if (composer) { composer.setPixelRatio(pr); composer.setSize(innerWidth, innerHeight); } world.quality(l); };
+    if (composer) { composer.setPixelRatio(pr); composer.setSize(innerWidth, innerHeight); }
+    if (typeof world.quality === 'function') world.quality(l);
+    else if (typeof world.setQuality === 'function') world.setQuality(l); };
   $('#quality').onchange = e => { pick = e.target.value; frames = acc = 0; applyQ(pick === 'auto' ? level : pick); }; applyQ(level);
 
   const begin = () => { ui.closeAll(); if (touch) { player.active = true; $('#tbtn').hidden = false; } else el.requestPointerLock(); };
@@ -33,7 +35,7 @@ async function boot() {
   $('#skip').onclick = e => { e.preventDefault(); ui.page(true); };
   $('#txt').onclick = () => { const l = document.createElement('a'); l.href = URL.createObjectURL(new Blob([H.text()], { type: 'text/plain' })); l.download = 'foster-bright-resume.txt'; l.click(); };
   $('#menuresume').onclick = () => ui.resumeView();
-  $('#areas').innerHTML = world.areas.map((a, i) => `<button data-i="${i}">${a.n}</button>`).join('');
+  $('#areas').innerHTML = (world.areas || []).map((a, i) => `<button data-i="${i}">${a.n}</button>`).join('');
   $('#areas').onclick = e => { const b = e.target.closest('button'); if (!b) return; const a = world.areas[b.dataset.i]; player.teleport(a.x, a.z, a.yaw); begin(); };
   const S = player.s; $('#sens').oninput = e => S.sens = +e.target.value; $('#fov').oninput = e => S.fov = +e.target.value; $('#inv').onchange = e => S.invert = e.target.checked;
   $('#bob').checked = S.bob; $('#bob').onchange = e => S.bob = e.target.checked; $('#aud').onchange = e => { audio.ambience(e.target.checked); };
@@ -50,9 +52,9 @@ async function boot() {
     if (document.hidden) { last = now; requestAnimationFrame(frame); return; }
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     if (pick === 'auto' && !ui.open && level !== 'low' && ++frames > 30) { acc += dt; if (frames === 120) { if (acc / 90 > .024) applyQ(level === 'high' ? 'medium' : 'low'); frames = 30; acc = 0; } }
-    player.update(dt); world.update(now / 1000, dt);
+    player.update(dt); world.update?.(now / 1000, dt);
     if (!warmed && player.p.z < -31) { warmed = true; fetch(C.projects[0].demo, { mode: 'no-cors' }).catch(() => {}); } // wake the free-tier server early
-    target = null; if ((player.active || player.tour) && !ui.open) { ray.setFromCamera({ x: 0, y: 0 }, cam); const h = ray.intersectObjects(world.list, false)[0]; target = h ? h.object : null; }
+    target = null; if ((player.active || player.tour) && !ui.open) { ray.setFromCamera({ x: 0, y: 0 }, cam); const h = ray.intersectObjects(world.list || [], false)[0]; target = h ? h.object : null; }
     ui.prompt(target && !player.tour ? target.userData.act.label : null); $('#cross').hidden = !(player.active && !ui.open);
     if (bloomOn) composer.render(); else renderer.render(scene, cam); requestAnimationFrame(frame);
   })(last);
