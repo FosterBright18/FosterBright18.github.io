@@ -3,6 +3,7 @@ import { C } from './content.js';
 import { build } from './world.js';
 import { Player } from './player.js';
 import { UI, H } from './ui.js';
+import { Presence } from './multiplayer.js';
 import * as audio from './audio.js';
 
 const $ = s => document.querySelector(s), ui = new UI(), touch = matchMedia('(pointer:coarse)').matches;
@@ -19,15 +20,16 @@ async function boot() {
   renderer.setPixelRatio(Math.min(devicePixelRatio, touch ? 1.5 : 2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMappingExposure = 1.0;
   $('#stage').append(renderer.domElement);
 
   const el = renderer.domElement;
   const scene = new THREE.Scene();
-  const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .08, 260);
+  const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .08, 280);
   const player = new Player(cam, el);
   const hooks = {
     play: i => ui.play(C.projects[i]),
+    media: item => ui.media(item),
     verify: () => ui.panel(H.verify()),
     how: () => ui.panel(H.how()),
     project: i => ui.panel(H.project(C.projects[i])),
@@ -48,7 +50,11 @@ async function boot() {
     await new Promise(r => requestAnimationFrame(r));
   }, renderer);
 
-  // Post-processing: half-res UnrealBloomPass (high threshold so only neon blooms) + subtle vignette/grain.
+  // Optional live anonymous multiplayer presence (configured via C.multiplayerWs)
+  const presence = new Presence(scene, C.multiplayerWs, count => ui.setOnline(count));
+
+  // Post-processing: surgical half-res bloom (high threshold 1.15, modest strength 0.26) so High has the exact same
+  // balanced exposure as Medium/Low—only true HDR neon strips get a subtle crisp halo.
   let composer = null, vignettePass = null, bloomOn = false;
   let level = touch ? 'medium' : 'high', pick = 'auto', frames = 0, acc = 0;
   try {
@@ -58,16 +64,16 @@ async function boot() {
     );
     composer = new ec.EffectComposer(renderer);
     composer.addPass(new rp.RenderPass(scene, cam));
-    composer.addPass(new ub.UnrealBloomPass(new THREE.Vector2(Math.max(1, innerWidth >> 1), Math.max(1, innerHeight >> 1)), 0.72, 0.5, 0.88));
+    composer.addPass(new ub.UnrealBloomPass(new THREE.Vector2(Math.max(1, innerWidth >> 1), Math.max(1, innerHeight >> 1)), 0.26, 0.35, 1.15));
     vignettePass = new sp.ShaderPass({
-      uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uGrain: { value: reducedMotion ? 0 : 0.022 } },
+      uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uGrain: { value: reducedMotion ? 0 : 0.016 } },
       vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
       fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime; uniform float uGrain; varying vec2 vUv;
         void main(){
           vec4 c = texture2D(tDiffuse, vUv);
           vec2 d = vUv - 0.5;
-          float vig = smoothstep(0.92, 0.28, dot(d, d) * 1.45);
-          c.rgb *= mix(0.78, 1.0, vig);
+          float vig = smoothstep(0.95, 0.32, dot(d, d) * 1.35);
+          c.rgb *= mix(0.84, 1.0, vig);
           float g = fract(sin(dot(vUv * 400.0 + uTime, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
           c.rgb += g * uGrain;
           gl_FragColor = c;
@@ -80,7 +86,7 @@ async function boot() {
   const applyQ = l => {
     level = l;
     bloomOn = !!composer && l === 'high';
-    const pr = Math.min(devicePixelRatio, l === 'low' ? 1 : (touch || l === 'medium') ? 1.5 : 2);
+    const pr = Math.min(devicePixelRatio, l === 'low' ? 1 : (touch || l === 'medium') ? 1.35 : 2);
     renderer.setPixelRatio(pr);
     renderer.setSize(innerWidth, innerHeight);
     if (composer) { composer.setPixelRatio(pr); composer.setSize(innerWidth, innerHeight); }
@@ -92,6 +98,7 @@ async function boot() {
   const begin = () => { ui.closeAll(); if (touch) { player.active = true; $('#tbtn').hidden = false; } else el.requestPointerLock(); };
   const tour = () => { ui.closeAll(); player.active = false; player.startTour(world.tour); ui.toast('Recruiter path. Press any key to take over.'); };
   player.onTourEnd = () => { if (touch) player.active = true; else ui.toast('Click the scene to look around.'); };
+  player.onRespawn = () => ui.toast('Respawned on Overlook — press Space to jump');
   ui.onClose = () => { if (touch) player.active = true; };
   $('#enter').onclick = begin; $('#tourbtn').onclick = tour; $('#resumebtn').onclick = begin; $('#tour2').onclick = tour;
   for (const b of document.querySelectorAll('[data-page]')) b.onclick = () => ui.page(true);
@@ -99,7 +106,7 @@ async function boot() {
   $('#txt').onclick = () => { const l = document.createElement('a'); l.href = URL.createObjectURL(new Blob([H.text()], { type: 'text/plain' })); l.download = 'foster-bright-resume.txt'; l.click(); };
   $('#menuresume').onclick = () => ui.resumeView();
   $('#areas').innerHTML = world.areas.map((a, i) => `<button data-i="${i}">${a.n}</button>`).join('');
-  $('#areas').onclick = e => { const b = e.target.closest('button'); if (!b) return; const a = world.areas[b.dataset.i]; player.teleport(a.x, a.z, a.yaw); begin(); };
+  $('#areas').onclick = e => { const b = e.target.closest('button'); if (!b) return; const a = world.areas[b.dataset.i]; player.teleport(a.x, a.z, a.yaw, a.y || 0); begin(); };
 
   const S = player.s;
   $('#sens').oninput = e => S.sens = +e.target.value;
@@ -117,8 +124,8 @@ async function boot() {
     cam.updateProjectionMatrix();
   });
 
-  const ray = new THREE.Raycaster(); ray.far = 3.6;
-  let target = null, warmed = false, last = performance.now();
+  const ray = new THREE.Raycaster(); ray.far = 4.0;
+  let target = null, warmed = false, summitReached = false, last = performance.now();
   const use = () => { if (target && (player.active || touch) && !ui.open) target.userData.act.fn(); };
   addEventListener('keydown', e => { if (e.code === 'KeyE') use(); if (e.code === 'KeyM' && !ui.open) ui.menu(true); });
   $('#tbtn').onclick = use;
@@ -138,7 +145,14 @@ async function boot() {
     }
     player.update(dt);
     world.update(now / 1000, dt);
-    if (!warmed && player.p.z < -31) { warmed = true; fetch(C.projects[0].demo, { mode: 'no-cors' }).catch(() => {}); }
+    presence.update(now / 1000, dt, player);
+
+    // Celebrate reaching the parkour summit pad
+    if (!summitReached && player.p.y > 4.9 && player.p.x > 12.2 && player.p.z < -50.8) {
+      summitReached = true;
+      ui.toast('Skyway Parkour Summit reached!');
+    }
+    if (!warmed && player.p.z < -28) { warmed = true; fetch(C.projects[0].demo, { mode: 'no-cors' }).catch(() => {}); }
     target = null;
     if ((player.active || player.tour) && !ui.open) {
       ray.setFromCamera({ x: 0, y: 0 }, cam);

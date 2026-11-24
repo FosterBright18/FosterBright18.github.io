@@ -14,7 +14,7 @@ h3{font:700 13px ui-monospace,Menlo,monospace;color:var(--cy);text-transform:upp
 #load,#start,#menu,#page{position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto}
 #load{display:grid;place-content:center;gap:14px;text-align:center;z-index:30}
 #bar{width:260px;height:2px;background:#26282e}#bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
-#start,#menu{background:rgba(10,11,14,.94)}.keys{margin-top:2.5em;max-width:34em}
+#start,#menu{background:rgba(10,11,14,.94)}.keys{margin-top:2.5em;max-width:36em}
 #panel{position:fixed;top:0;right:0;bottom:0;width:min(580px,100%);z-index:25;background:rgba(10,11,14,.96);overflow:auto;padding:28px 32px 48px}
 #panel dt,#menu label{display:block}dt{font-weight:700;margin-top:1em}dd{margin:.1em 0 0;color:#d6cfbf}li{margin:.35em 0}ul{padding-left:1.1em}
 .links a{margin-right:1.4em}.note{color:var(--acc);font:13px ui-monospace,monospace}.list button{display:block}
@@ -22,15 +22,19 @@ h3{font:700 13px ui-monospace,Menlo,monospace;color:var(--cy);text-transform:upp
 select{font:inherit;color:var(--ink);background:#171a20;border:0;padding:.4em .6em;margin-left:.5em}
 #cross{position:fixed;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:var(--ink);opacity:.85;z-index:5}
 #prompt{position:fixed;left:50%;bottom:11vh;transform:translateX(-50%);z-index:6;font:14px ui-monospace,Menlo,monospace;background:rgba(10,11,14,.88);padding:.5em .95em}#prompt b{color:var(--acc);margin-right:.5em}
+#online{position:fixed;right:18px;top:14px;z-index:12;color:var(--cy);background:rgba(10,11,14,.76);padding:4px 10px}
 #toast{position:fixed;left:50%;bottom:5vh;transform:translate(-50%,10px);opacity:0;transition:.25s;z-index:40;background:var(--acc);color:#140802;font-weight:700;padding:.6em 1.1em;max-width:90vw}#toast.show{opacity:1;transform:translate(-50%,0)}
 #skip{position:fixed;left:16px;bottom:14px;z-index:35;font:12px ui-monospace,Menlo,monospace;color:var(--mu);background:rgba(13,14,17,.75);padding:2px 6px}
 #tbtn{position:fixed;right:22px;bottom:30px;z-index:8;background:var(--acc);color:#140802;font-weight:700;padding:1em 1.4em;text-decoration:none;border-radius:999px}
 #page .pn{font:700 22px "Bahnschrift","Arial Narrow",sans-serif;color:var(--ink);text-transform:none;letter-spacing:0;margin-top:2.4em}
 #page section{margin-top:2.5em;border-top:1px solid rgba(255,255,255,.11);padding-top:.6em}
 .ns{padding:24px;position:relative;z-index:50;background:var(--bg)}
-#play{position:fixed;inset:0;z-index:45;background:#0a0b0d;display:flex;flex-direction:column}
+#play,#media{position:fixed;inset:0;z-index:45;background:#0a0b0d;display:flex;flex-direction:column}
 .pbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.12)}.pbar a{color:var(--cy);margin-right:1.4em}
-#pnote{margin:.5em 20px;max-width:64em}#pframe{flex:1;min-height:0}#pframe iframe{width:100%;height:100%;border:0;background:#fff}
+#pnote,#mcap{margin:.6em 20px;max-width:68em}#pframe{flex:1;min-height:0}#pframe iframe{width:100%;height:100%;border:0;background:#fff}
+#mstage{flex:1;min-height:0;display:grid;place-items:center;padding:24px;overflow:auto}
+#mstage img,#mstage video{max-width:100%;max-height:100%;object-fit:contain;background:#000}
+.mempty{max-width:560px;padding:28px;border-top:2px solid var(--acc);background:#12141a}
 #resume{display:none;position:fixed;inset:0;z-index:50;overflow:auto;background:rgba(10,11,14,.94);padding:18px}#resume.show{display:block}
 .rbar{max-width:8.5in;margin:0 auto 10px;text-align:right}
 .sheet{max-width:8.5in;margin:0 auto;background:#fff;color:#111;padding:.5in .58in;font:10pt/1.38 Georgia,"Times New Roman",serif}

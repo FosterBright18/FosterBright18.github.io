@@ -20,7 +20,7 @@ export const H = {
     <p class="mono">${C.unomiVerify}</p>`,
   facts: () => `<h2>Recruiter quick sheet</h2>${dl(C.facts)}<p class="links">${a(C.gh, 'GitHub')}<button data-print>Print resume</button><button data-txt>Download plain text</button></p>`,
   skills: () => `<h2>Skills</h2>${skills()}`,
-  courses: () => `<h2>Selected coursework</h2><p class="lead">${C.edu.school}</p><ul>${li(C.courses)}</ul><h3>Coursework that supports this work</h3><p>${C.support}</p>`,
+  courses: () => `<h2>Selected ASU coursework</h2><p class="lead">${C.edu.school}</p><ul>${li(C.courses)}</ul><h3>Coursework that supports this work</h3><p>${C.support}</p>`,
   verify: () => `<h2>Verify it yourself</h2>${verify()}`,
   how: () => `<h2>How I work</h2><ul>${li(C.how)}</ul>`,
   resume: () => `<article class="sheet"><h1>${C.name}</h1><p>${C.loc} | ${C.email} | ${C.gh.replace('https://', '')}</p>
@@ -35,7 +35,7 @@ export const H = {
     <section><h2>Education</h2><p>${C.edu.degree}, ${C.edu.school}. ${C.edu.note}</p></section>
     <section><h2>Timeline</h2>${dl(C.timeline)}</section>
     <section><h2>Projects</h2>${C.projects.map(p => H.project(p).replace('<h2>', '<h3 class="pn">').replace('</h2>', '</h3>')).join('')}</section>
-    <section><h2>Skills</h2>${skills()}<h3>Coursework</h3><p>${C.courses.join(', ')}</p><p>${C.support}</p></section>
+    <section><h2>Skills</h2>${skills()}<h3>ASU Coursework</h3><ul>${li(C.courses)}</ul><p>${C.support}</p></section>
     <section><h2>How I work</h2><ul>${li(C.how)}</ul></section>
     <section><h2>Verify it yourself</h2>${verify()}</section>
     ${C.refs.length ? `<section><h2>References</h2>${dl(C.refs.map(r => [r.who, r.what]))}</section>` : ''}</div>`,
@@ -66,8 +66,8 @@ export class UI {
     this.e = {
       load: $('#load'), bar: $('#bar i'), lt: $('#lt'),
       start: $('#start'), panel: $('#panel'), pbody: $('#pbody'),
-      menu: $('#menu'), page: $('#page'), play: $('#play'),
-      resume: $('#resume'), prompt: $('#prompt'), toastEl: $('#toast')
+      menu: $('#menu'), page: $('#page'), play: $('#play'), media: $('#media'),
+      resume: $('#resume'), prompt: $('#prompt'), toastEl: $('#toast'), online: $('#online')
     };
     this.e.resume.innerHTML = '<div class="rbar"><button class="go" data-print>Print / Save as PDF</button><button data-close>Close</button></div>' + H.resume();
     this.e.page.innerHTML = H.page();
@@ -81,15 +81,53 @@ export class UI {
     });
     addEventListener('keydown', ev => { if (ev.key === 'Escape' && this.open && this.e.start.hidden) this.closeAll(true); });
   }
-  get open() { return !this.e.start.hidden || !this.e.panel.hidden || !this.e.menu.hidden || !this.e.page.hidden || !this.e.play.hidden || this.e.resume.classList.contains('show'); }
+  get open() { return !this.e.start.hidden || !this.e.panel.hidden || !this.e.menu.hidden || !this.e.page.hidden || !this.e.play.hidden || !this.e.media.hidden || this.e.resume.classList.contains('show'); }
   progress(f, m) { this.e.bar.style.width = Math.round(f * 100) + '%'; if (m) this.e.lt.textContent = m; }
   ready() { this.e.load.hidden = true; this.e.start.hidden = false; $('#enter').focus(); }
   lockOff() { document.exitPointerLock && document.exitPointerLock(); }
+  setOnline(n) { if (!this.e.online) return; this.e.online.hidden = n < 1; this.e.online.textContent = n === 1 ? '1 visitor online' : `${n} visitors online`; }
   panel(html) { this.closeAll(); this.e.pbody.innerHTML = html; this.e.panel.hidden = false; this.e.panel.scrollTop = 0; this.lockOff(); $('#panel [data-close]').focus(); }
   menu(on = true) { this.closeAll(); this.e.menu.hidden = !on; if (on) { this.lockOff(); $('#resumebtn').focus(); } }
   page(on = true) { this.closeAll(); this.e.page.hidden = !on; this.e.page.scrollTop = 0; if (on) { this.lockOff(); const btn = $('#page [data-close]'); if (btn) btn.focus(); } }
   resumeView() { this.closeAll(); this.e.resume.classList.add('show'); this.e.resume.scrollTop = 0; this.lockOff(); }
-  // Play mode: live site in an iframe, created lazily on open and removed on exit so audio and network activity stop.
+
+  // Full-screen UNOMi media lightbox (plays real .mp4/.webm videos or shows high-res .png/.jpg images from assets/unomi/)
+  media(item) {
+    this.closeAll();
+    this.e.media.hidden = false;
+    this.lockOff();
+    $('#mtitle').textContent = item.title;
+    $('#msub').textContent = item.subtitle;
+    $('#mcap').textContent = item.caption;
+    const stage = $('#mstage');
+    stage.replaceChildren();
+    const fallback = () => {
+      const box = document.createElement('div');
+      box.className = 'mempty';
+      box.innerHTML = `<h3>Media slot ready</h3><p class="lead">Drop your ${item.type === 'video' ? 'video (.mp4 or .webm)' : 'image (.png or .jpg)'} file into your repo at:</p><p class="mono">${item.src}</p><p>Once pushed to GitHub Pages, this 3D wall display and full-screen viewer will automatically play/render your real UNOMi work.</p>`;
+      stage.replaceChildren(box);
+    };
+    if (item.type === 'video') {
+      const v = document.createElement('video');
+      v.src = item.src; v.controls = true; v.autoplay = true; v.loop = true; v.playsInline = true;
+      v.onerror = fallback;
+      stage.append(v);
+    } else {
+      const img = document.createElement('img');
+      img.src = item.src; img.alt = item.title;
+      img.onerror = fallback;
+      stage.append(img);
+    }
+    $('#mexit').focus();
+  }
+
+  killMedia() {
+    const v = $('#mstage video');
+    if (v) { try { v.pause(); v.src = ''; } catch {} }
+    $('#mstage').replaceChildren();
+    this.e.media.hidden = true;
+  }
+
   play(p) {
     this.closeAll(); this.e.play.hidden = false; this.lockOff(); $('#ptitle').textContent = p.name; $('#pnew').href = p.demo;
     $('#pnote').textContent = p.cold
@@ -107,8 +145,9 @@ export class UI {
     fr.onload = () => { clearInterval(this.pt); $('#pel').textContent = 'loaded'; };
     $('#pexit').focus();
   }
+
   killPlay() { clearInterval(this.pt); $('#pframe').replaceChildren(); this.e.play.hidden = true; }
-  closeAll(notify) { for (const k of ['start', 'panel', 'menu', 'page']) this.e[k].hidden = true; this.killPlay(); this.e.resume.classList.remove('show'); if (notify) this.onClose(); }
+  closeAll(notify) { for (const k of ['start', 'panel', 'menu', 'page']) this.e[k].hidden = true; this.killPlay(); this.killMedia(); this.e.resume.classList.remove('show'); if (notify) this.onClose(); }
   prompt(t) { this.e.prompt.hidden = !t; if (t) this.e.prompt.innerHTML = '<b>E</b> ' + t; }
   toast(m) { const t = this.e.toastEl; t.textContent = m; t.classList.add('show'); clearTimeout(this.tt); this.tt = setTimeout(() => t.classList.remove('show'), 2800); }
 }

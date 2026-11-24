@@ -21,7 +21,6 @@ export function synth(on) {
   return loopOn;
 }
 export const isLoop = () => loopOn;
-// Four lane levels 0..1 (sub-bass, low, mid, high) from the real analyser.
 export function levels() { if (!loopOn || !an) return [0, 0, 0, 0]; an.getByteFrequencyData(bins);
   return [[1, 3], [3, 8], [8, 24], [24, 64]].map(([a, b]) => { let s = 0; for (let i = a; i < b; i++) s += bins[i]; return s / (b - a) / 255; }); }
 export function ambience(on) {
