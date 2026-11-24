@@ -9,7 +9,7 @@ export const C = {
   email: 'fosterbright18@gmail.com',
   linkedin: '[LINKEDIN URL PLACEHOLDER]',
   // Optional live presence WebSocket server URL (see multiplayer-server/README.md). Leave empty '' to disable silently.
-  multiplayerWs: 'https://console.firebase.google.com/project/mywesbite-60d3a/database/mywesbite-60d3a-default-rtdb/data/~2F',
+  multiplayerWs: 'https://mywesbite-60d3a-default-rtdb.firebaseio.com',
   summary: 'Computer Science (Software Engineering) senior at Arizona State University. I build Unreal Engine 5.8 C++ plugin features for the UNOMi Emotion Engine facial animation pipeline, real-time multiplayer networking, marine forecast analytics, and audio DSP tooling.',
   facts: [
     ['Location', 'Tempe, Arizona'],
