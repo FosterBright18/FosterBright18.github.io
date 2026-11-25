@@ -370,29 +370,29 @@ function buildSurfboard(x, z, rotY) {
   return board;
 }
 
-// Media wall bay for Foster's real UNOMi videos and screenshots (auto-loads assets/unomi/* or renders clean drop-in card)
-function addMediaBay(item, x, y, z, ry, w, h) {
-  // Brushed steel frame + accent bar
+// Video wall bay for Foster's real UNOMi captures (auto-plays muted in-world; Press E for full-screen player with audio)
+function addMediaBay(item, x, y, z, ry, w, h, idx = 0) {
+  const isFinal = idx >= 2;
+  const colHex = isFinal ? ACC : CY;
   const fx = Math.sin(ry), fz = Math.cos(ry);
   sBox(w + 0.18, h + 0.18, 0.09, 'steel', x - fx * 0.03, y, z - fz * 0.03, 0, ry, 0);
-  sBox(w + 0.14, 0.035, 0.05, item.type === 'video' ? 'acc' : 'cyan', x + fx * 0.01, y + h / 2 + 0.06, z + fz * 0.01, 0, ry, 0);
+  sBox(w + 0.14, 0.035, 0.05, isFinal ? 'acc' : 'cyan', x + fx * 0.01, y + h / 2 + 0.06, z + fz * 0.01, 0, ry, 0);
 
-  // Default placeholder canvas (automatically replaced the moment the real image or video loads!)
   const c = document.createElement('canvas'); c.width = 640; c.height = 400;
   const g = c.getContext('2d');
   g.fillStyle = '#0e1116'; g.fillRect(0, 0, 640, 400);
-  g.strokeStyle = item.type === 'video' ? ACC : CY; g.lineWidth = 4; g.strokeRect(18, 18, 604, 364);
-  g.fillStyle = item.type === 'video' ? ACC : CY; g.font = `700 22px ${M}`;
-  g.fillText(item.type === 'video' ? '[ VIDEO SHOWCASE SLOT ]' : '[ SCREENSHOT SHOWCASE SLOT ]', 42, 74);
+  g.strokeStyle = colHex; g.lineWidth = 4; g.strokeRect(18, 18, 604, 364);
+  g.fillStyle = colHex; g.font = `700 22px ${M}`;
+  g.fillText(`[ ${item.slot || 'VIDEO SHOWCASE'} ]`, 42, 74);
   g.fillStyle = '#f2ebdc'; g.font = `700 34px ${H}`;
   g.fillText(item.title, 42, 134, 556);
   g.fillStyle = '#b9b2a1'; g.font = `600 18px ${M}`;
   g.fillText(item.subtitle, 42, 174, 556);
   g.fillStyle = '#171c24'; g.fillRect(42, 220, 556, 62);
   g.fillStyle = '#3dffe3'; g.font = `600 16px ${M}`;
-  g.fillText('Drop your file at: ' + item.src, 58, 257, 524);
+  g.fillText('Drop video at: ' + item.src, 58, 257, 524);
   g.fillStyle = '#a59e8d'; g.font = `15px ${M}`;
-  g.fillText('Press E to inspect full-screen viewer', 42, 342);
+  g.fillText('Press E to open full-screen video player (with audio)', 42, 342);
 
   const phTex = new THREE.CanvasTexture(c);
   phTex.colorSpace = THREE.SRGBColorSpace;
@@ -431,8 +431,8 @@ function addMediaBay(item, x, y, z, ry, w, h) {
   }
 
   // Crisp caption nameplate directly beneath the bay
-  plaque(x + fx * 0.01, y - h / 2 - 0.42, z + fz * 0.01, ry, w, 0.56, item.title, item.subtitle + '  //  Press E to expand', item.type === 'video' ? ACC : CY);
-  act(screen, `View ${item.title} (${item.type})`, () => hooks.media(item));
+  plaque(x + fx * 0.01, y - h / 2 - 0.42, z + fz * 0.01, ry, w, 0.56, item.title, item.subtitle + '  //  Press E to watch with audio', isFinal ? ACC : CY);
+  act(screen, `Watch ${item.title} (full-screen video)`, () => hooks.media(item));
 }
 
 export async function build(sc, hk, step, renderer) {
@@ -820,7 +820,12 @@ export async function build(sc, hk, step, renderer) {
   sSolid(0.28, 5.0, 10, 'wall', -5.14, 2.5, -5);
   sSolid(10, 5.0, 0.28, 'wall', 0, 2.5, 0.14);
   addWindowWallX(5, -10, 0, 5.0, -8.6, -1.4, 0.45, 4.55, 1, false);
-  addDoorWallZ(-5, 5, -10, 5.0, -1, 'acc');
+  // Shared doorway wall at z = -10 is built full-width (-7..7) in the UNOMi section below (z: -10.0..-10.28)
+  // Add Entry Hall side neon portal trim right on the south face (z = -9.98)
+  sBox(0.04, 2.65, 0.04, 'acc', -1.43, 1.35, -9.98);
+  sBox(0.04, 2.65, 0.04, 'acc', 1.43, 1.35, -9.98);
+  sBox(2.9, 0.04, 0.04, 'acc', 0, 2.68, -9.98);
+  addHazard(0, -9.82, 2.85, 0.34, 0);
   addBaseboards(-5, 5, -10, 0, true, false);
   addLight(0, 4.45, -5, 0xffb46a, 42, 24);
   addShaft(0, 4.9, -5, 0.8, 2.6, 4.6, false);
@@ -865,39 +870,50 @@ export async function build(sc, hk, step, renderer) {
   addCeiling(-7, 7, -26, -10, 5.0, false);
   sSolid(0.28, 5.0, 16, 'wall', -7.14, 2.5, -18);
   addWindowWallX(7, -26, -10, 5.0, -24.4, -11.6, 0.45, 4.55, 1, false);
-  addDoorWallZ(-7, 7, -10, 5.0, 1, 'acc');
+  // Single flush shared wall at z = -10.0..-10.28 (zero protruding wall clipping!)
+  addDoorWallZ(-7, 7, -10, 5.0, -1, 'acc');
   addDoorWallZ(-7, 7, -26, 5.0, -1, 'cyan');
-  addBaseboards(-7, 7, -26, -10, true, false);
+  addBaseboards(-7, 7, -26, -10.28, true, false);
   addLight(-1.5, 4.45, -18, 0xffaa58, 52, 26);
   addLight(3.0, 4.35, -18, 0x4be8d2, 34, 22);
   addShaft(-2.5, 4.9, -18, 0.8, 2.7, 4.6, false);
   neonLabel('UNOMi EMOTION ENGINE // SHOWCASE', 0, 4.35, -25.8, 0, ACC, 5.4, 0.42, flickers, reflectionGroup);
   neonLabel('PROJECTS', 0, 2.86, -25.78, 0, CY, 1.8, 0.28, null, reflectionGroup);
 
-  // West Wall: 4 Large Real-Work Video & Image Showcase Bays (reads C.unomiMedia -> assets/unomi/*)
-  const bayZs = [-12.3, -16.1, -19.9, -23.7];
+  // West Wall: 4 Dedicated Video Bays (Morph Sliders | Saved Emotions | Final Speaking I | Final Speaking II)
+  const bayZs = [-12.4, -16.15, -19.9, -23.65];
   C.unomiMedia.slice(0, 4).forEach((item, idx) => {
-    addMediaBay(item, -6.92, 2.38, bayZs[idx], Math.PI / 2, 3.1, 1.88);
+    addMediaBay(item, -6.92, 2.38, bayZs[idx], Math.PI / 2, 3.1, 1.88, idx);
   });
 
-  // South-East & North-West verified context plaques (auto-fitted, zero text clipping!)
-  act(plaque(-4.4, 1.85, -10.18, Math.PI, 3.4, 2.0, C.job.shortDates + ' // UNOMi', [
-    C.job.role,
-    C.job.org,
-    'UE 5.8 C++ Plugin / SFacialExpressionPanel / Material UV Eye Jitter / Preset Emotion Blends.',
-    'Press E for full verified details.'
-  ], ACC), 'Read full UNOMi Emotion Engine details', () => hooks.job());
+  // 4 Unobstructed Technical Architecture & Bug-Fix Plaques (cleanly offset at z = -10.34 and z = -25.82!)
+  act(plaque(-4.35, 1.88, -10.34, Math.PI, 3.85, 2.25, 'External AI Server Architecture', [
+    'Heavyweight speech ML cannot stall Unreal Editor or bloat the C++ plugin.',
+    'UE 5.8 C++ Plugin -> Async HTTP/JSON -> Cloud Run FastAPI Backend.',
+    'Server runs Kaldi forced alignment + INT8 Wav2Vec2 SER in parallel.',
+    'Returned phoneme & emotionFrames JSON bakes to UAnimSequence via IAnimationDataController.',
+    'Press E for full technical breakdown.'
+  ], ACC), 'Read full UNOMi architecture & fixes', () => hooks.job());
 
-  act(plaque(4.4, 1.85, -10.18, Math.PI, 3.4, 2.0, 'Emotion Engine Pipeline', [
-    'Maps acoustic prosody & speech-emotion recognition probabilities to 3D character morph targets.',
-    'ASU Capstone Team 2 + Pixel Pirate Studio sponsor engineers.',
-    'Press E for full verified details.'
-  ], CY), 'Read full UNOMi Emotion Engine details', () => hooks.job());
+  act(plaque(4.35, 1.88, -10.34, Math.PI, 3.85, 2.25, 'C++ & Unreal Editor Bugs Fixed', [
+    '- Async HTTP / Tab-Closure Crash: Fixed raw-pointer captures crashing Unreal when closing Slate UI tabs.',
+    '- Numeric Version Checks: Replaced string version comparisons in update checks with numeric parsing.',
+    '- Morph Alignment: Aligned facial morph sliders by morph target name across rigs.',
+    '- UE 5.8 Stability: Fixed UTextureRenderTarget2D build errors & export flows.',
+    'Press E for full technical breakdown.'
+  ], CY), 'Read full UNOMi architecture & fixes', () => hooks.job());
 
-  act(plaque(-4.4, 1.82, -25.82, 0, 3.3, 1.85, 'How I work', [
-    'Git & GitHub (UNOMi-Solutions/Unreal_Engine_Plugin), Taiga, Discord, Zoom.',
-    'Cross-DCC collaboration: Unreal Engine 5.8, Blender, Maya, Cinema 4D.',
-    'Editor crash fixes, plugin update checks & animation export.'
+  act(plaque(-4.35, 1.84, -25.82, 0, 3.75, 2.1, 'Slate UI & 14 Saved Emotion Presets', [
+    'Built SFacialExpressionPanel in UE 5.8 C++ with morph sliders & physics toggles (brows, eyes, cheeks, nose, ears, mouth).',
+    '14 preloaded/saved emotion presets persisted to EmotionPresets.json.',
+    'Material UV-driven eye jitter mechanics & lip-sync integration.',
+    'Press E for details.'
+  ], ACC), 'Read full UNOMi Slate UI details', () => hooks.job());
+
+  act(plaque(3.65, 1.84, -25.82, 0, 3.35, 1.95, 'How I Work // Cross-DCC Team', [
+    C.job.shortDates + ' | ASU Senior Capstone (CSE 485) + Pixel Pirate Studio.',
+    'Repo: UNOMi-Solutions/Unreal_Engine_Plugin.',
+    'Git/GitHub, Taiga, Discord, Zoom across Unreal 5.8, Blender, Maya & Cinema 4D.'
   ], CY), 'Read How I Work details', () => hooks.how());
 
   addServerRack(6.2, -25.1, -Math.PI * 0.75);
@@ -1068,7 +1084,7 @@ export async function build(sc, hk, step, renderer) {
   addShaft(0, 6.0, -41, 1.0, 3.2, 5.6, false);
   addShaft(-7.2, 6.0, -41, 0.8, 2.5, 5.6, true);
   neonLabel('PROJECTS // LIVE DEMOS', 0, 5.15, -51.8, 0, ACC, 4.6, 0.42, flickers, reflectionGroup);
-  neonLabel('SKILLS & COURSEWORK', 0, 2.86, -51.78, 0, CY, 2.8, 0.28, null, reflectionGroup);
+  neonLabel('SKILLS & COURSEWORK', 0, 2.86, -51.66, 0, CY, 2.8, 0.28, null, reflectionGroup);
   neonLabel('OVERLOOK & PARKOUR', 10.85, 3.85, -33.8, -Math.PI / 2, CY, 3.0, 0.28, null, reflectionGroup);
 
   addServerRack(-9.8, -50.8, Math.PI * 0.25);

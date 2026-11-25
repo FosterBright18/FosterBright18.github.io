@@ -15,8 +15,16 @@ export const H = {
     <h3>Tradeoffs and constraints</h3><ul>${li(p.trade)}</ul>${p.cold ? `<p class="note">${COLD}</p>` : ''}
     <h3>What I would improve next</h3><p>${p.next || '[FOSTER TO CONFIRM]'}</p>`,
   job: () => `<h2>${C.job.role}</h2><p class="lead">${C.job.org}</p><p class="mono">${C.job.dates}</p>
-    <h3>UNOMi Emotion Engine context</h3><p>${C.job.context}</p>
-    <h3>Verified contributions</h3><ul>${li(C.job.bullets)}</ul>
+    <h3>Why an External Server? (Distributed AI Pipeline)</h3>
+    <p>${C.job.context}</p>
+    <p class="mono">UE 5.8 C++ Plugin &rarr; Async HTTP/JSON &rarr; Cloud Run FastAPI (Kaldi + INT8 Wav2Vec2 SER) &rarr; IAnimationDataController &rarr; UAnimSequence</p>
+    <ul>${li(C.job.architecture)}</ul>
+    <h3>Key Engineering Fixes &amp; Stability Work</h3>
+    <ul>${li(C.job.fixes)}</ul>
+    <h3>Core Contributions</h3>
+    <ul>${li(C.job.bullets)}</ul>
+    <h3>Demo Videos</h3>
+    <div class="list">${C.unomiMedia.map(m => `<button data-media="${m.id}">Watch ${m.slot}: ${m.title}</button>`).join('')}</div>
     <p class="mono">${C.unomiVerify}</p>`,
   facts: () => `<h2>Recruiter quick sheet</h2>${dl(C.facts)}<p class="links">${a(C.gh, 'GitHub')}<button data-print>Print resume</button><button data-txt>Download plain text</button></p>`,
   skills: () => `<h2>Skills</h2>${skills()}`,
@@ -26,7 +34,7 @@ export const H = {
   resume: () => `<article class="sheet"><h1>${C.name}</h1><p>${C.loc} | ${C.email} | ${C.gh.replace('https://', '')}</p>
     <h2>Education</h2><p><b>${C.edu.school}</b> | ${C.edu.degree}<br>${C.edu.note}</p>
     <h2>Experience</h2><p><b>${C.job.role}</b>, ${C.job.org} | ${C.job.dates}</p>
-    <p>${C.job.context}</p><ul>${li(C.job.bullets)}</ul>
+    <ul>${li(C.job.bullets)}</ul>
     <h2>Projects</h2>${C.projects.map(p => `<p><b>${p.name}</b> | ${p.stack.join(', ')}<br>${p.repo.replace('https://', '')} | ${p.demo.replace('https://', '')}</p><ul>${li(p.bullets.slice(0, 2))}</ul>`).join('')}
     <h2>Technical skills</h2>${Object.entries(C.skills).map(([k, v]) => `<p><b>${k}:</b> ${v.join(', ')}</p>`).join('')}<p><b>Coursework:</b> ${C.courses.join(', ')}</p></article>`,
   page: () => `<div class="col"><button data-close>Back to the walk</button><header><h1>${C.name}</h1><p class="lead">${C.title}, ${C.loc}</p><p>${C.summary}</p><p class="links">${a(C.gh, 'GitHub')}<button data-print>Print resume</button><button data-txt>Download plain text</button></p></header>
@@ -78,6 +86,8 @@ export class UI {
       if (ev.target.closest('[data-txt]')) download();
       const pb = ev.target.closest('[data-play]');
       if (pb) { const proj = C.projects.find(x => x.id === pb.dataset.play); if (proj) this.play(proj); }
+      const mb = ev.target.closest('[data-media]');
+      if (mb) { const item = C.unomiMedia.find(x => x.id === mb.dataset.media); if (item) this.media(item); }
     });
     addEventListener('keydown', ev => { if (ev.key === 'Escape' && this.open && this.e.start.hidden) this.closeAll(true); });
   }
@@ -91,7 +101,7 @@ export class UI {
   page(on = true) { this.closeAll(); this.e.page.hidden = !on; this.e.page.scrollTop = 0; if (on) { this.lockOff(); const btn = $('#page [data-close]'); if (btn) btn.focus(); } }
   resumeView() { this.closeAll(); this.e.resume.classList.add('show'); this.e.resume.scrollTop = 0; this.lockOff(); }
 
-  // Full-screen UNOMi media lightbox (plays real .mp4/.webm videos or shows high-res .png/.jpg images from assets/unomi/)
+  // Full-screen UNOMi video player (unmuted with playback controls so recruiters can hear speaking dialogue!)
   media(item) {
     this.closeAll();
     this.e.media.hidden = false;
@@ -104,20 +114,13 @@ export class UI {
     const fallback = () => {
       const box = document.createElement('div');
       box.className = 'mempty';
-      box.innerHTML = `<h3>Media slot ready</h3><p class="lead">Drop your ${item.type === 'video' ? 'video (.mp4 or .webm)' : 'image (.png or .jpg)'} file into your repo at:</p><p class="mono">${item.src}</p><p>Once pushed to GitHub Pages, this 3D wall display and full-screen viewer will automatically play/render your real UNOMi work.</p>`;
+      box.innerHTML = `<h3>${item.slot || 'Video slot'} ready</h3><p class="lead">Drop your .mp4 video into your repo at:</p><p class="mono">${item.src}</p><p>Once pushed to GitHub Pages, this 3D wall screen will auto-play muted in-world and play with full audio when visitors press E.</p>`;
       stage.replaceChildren(box);
     };
-    if (item.type === 'video') {
-      const v = document.createElement('video');
-      v.src = item.src; v.controls = true; v.autoplay = true; v.loop = true; v.playsInline = true;
-      v.onerror = fallback;
-      stage.append(v);
-    } else {
-      const img = document.createElement('img');
-      img.src = item.src; img.alt = item.title;
-      img.onerror = fallback;
-      stage.append(img);
-    }
+    const v = document.createElement('video');
+    v.src = item.src; v.controls = true; v.autoplay = true; v.loop = true; v.playsInline = true;
+    v.onerror = fallback;
+    stage.append(v);
     $('#mexit').focus();
   }
 

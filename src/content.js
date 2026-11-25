@@ -1,4 +1,4 @@
-// Single source of truth. The 3D signage, media gallery, page view, printable resume, and text download all read this.
+// Single source of truth. The 3D signage, 4-video UNOMi showcase, page view, printable resume, and text download all read this.
 // Anything in [BRACKETS] is a placeholder to fill in. Nothing here is a measured claim unless you add one.
 export const C = {
   name: 'Foster Bright',
@@ -8,9 +8,9 @@ export const C = {
   site: 'https://fosterbright18.github.io/',
   email: 'fosterbright18@gmail.com',
   linkedin: '[LINKEDIN URL PLACEHOLDER]',
-  // Optional live presence WebSocket server URL (see multiplayer-server/README.md). Leave empty '' to disable silently.
+  // Live anonymous multiplayer presence via Firebase Realtime Database
   multiplayerWs: 'https://mywesbite-60d3a-default-rtdb.firebaseio.com',
-  summary: 'Computer Science (Software Engineering) senior at Arizona State University. I build Unreal Engine 5.8 C++ plugin features for the UNOMi Emotion Engine facial animation pipeline, real-time multiplayer networking, marine forecast analytics, and audio DSP tooling.',
+  summary: 'Computer Science (Software Engineering) senior at Arizona State University. I build Unreal Engine 5.8 C++ editor plugins communicating with external AI inference servers (UNOMi Emotion Engine), real-time multiplayer networking, marine forecast analytics, and audio DSP tooling.',
   facts: [
     ['Location', 'Tempe, Arizona'],
     ['Graduation', 'Expected 2027 (B.S. Computer Science, Software Engineering, ASU)'],
@@ -25,53 +25,67 @@ export const C = {
     note: 'Senior standing. Expected graduation 2027.'
   },
   job: {
-    role: 'Software Engineering Intern and ASU Senior Capstone',
+    role: 'Software Engineering Intern and ASU Senior Capstone (CSE 485)',
     org: 'UNOMi Software Update (Emotion Engine), Pixel Pirate Studio',
     dates: 'Sept 2026 to Present [FOSTER TO CONFIRM dates]',
     shortDates: 'Sept 2026 - Present',
-    context: 'UNOMi Emotion Engine is an AI-powered facial animation system designed to automate character expressions by mapping acoustic prosody and speech-emotion recognition probabilities to 3D character morph targets. Working with ASU Capstone Team 2 and Pixel Pirate Studio sponsor engineers across Unreal Engine, Blender, Maya, and Cinema 4D workflows.',
+    context: 'The UNOMi Emotion Engine automates 3D character facial expressions from speech. Because heavyweight acoustic and speech-emotion ML models cannot run inside the Unreal Editor game thread without stalling frame times or bloating plugin distribution, the Unreal Engine 5.8 C++ plugin offloads inference asynchronously over HTTP/JSON to an external FastAPI backend on Cloud Run.',
+    architecture: [
+      'UE 5.8 C++ Editor Module sends audio/requests asynchronously over HTTP to an external FastAPI server running on Cloud Run.',
+      'External server runs Kaldi forced alignment (phoneme timings / visemes) and an INT8-quantized Wav2Vec2 Speech Emotion Recognition (SER) model in parallel.',
+      'Structured JSON payloads (phoneme timings + emotionFrames probabilities) return to Unreal Engine, where C++ maps curves and bakes them directly into UAnimSequence assets via IAnimationDataController.'
+    ],
+    fixes: [
+      'Async HTTP / Tab-Closure Crash Fix: Resolved Unreal Editor crashes where asynchronous HTTP callbacks captured raw pointers to Slate UI widgets that had already been destroyed when a user closed the plugin tab.',
+      'Numeric Version Checks: Replaced fragile string-based version comparisons in plugin update checks with proper numeric version parsing.',
+      'Morph Slider Name Alignment: Aligned facial morph-target sliders cleanly by morph target name across rigged meshes.',
+      'UE 5.8 Build & Rendering Fixes: Resolved UTextureRenderTarget2D compilation errors and stabilized animation data export workflows.'
+    ],
     bullets: [
-      'Build and test C++ functionality for an Unreal Engine 5.8 plugin in the UNOMi-Solutions/Unreal_Engine_Plugin repository supporting the UNOMi Emotion Engine facial animation pipeline.',
-      'Implement and refine Slate UI components, including SFacialExpressionPanel, facial morph-target sliders, and a preset emotion system for facial shape blends that drive character expressions.',
-      'Work on Material UV-driven eye jitter mechanics, lip-sync animation handling, and animation data export workflows for character animation and rendering behavior.',
-      'Diagnose and resolve Unreal Editor stability issues, including plugin update checks and editor crashes during UI tab closure.',
-      'Collaborate with ASU capstone teammates and Pixel Pirate Studio sponsor engineers across Unreal Engine, Blender, Maya, and Cinema 4D workflows using Git/GitHub, Taiga, Discord, and Zoom.'
+      'Build and test C++ editor module functionality for an Unreal Engine 5.8 plugin (UNOMi-Solutions/Unreal_Engine_Plugin) communicating asynchronously over HTTP/JSON with an external Cloud Run FastAPI backend running Kaldi forced alignment and an INT8-quantized Wav2Vec2 SER model in parallel.',
+      'Bake returned phoneme timings and emotionFrames curves into Unreal UAnimSequence assets via IAnimationDataController, alongside Material UV-driven eye jitter mechanics and lip-sync animation handling.',
+      'Implement and refine C++ Slate UI components, including SFacialExpressionPanel with name-aligned facial morph-target sliders, physics toggles (brows, eyes, cheeks, nose, ears, mouth), and 14 preloaded/saved emotion presets persisted to EmotionPresets.json.',
+      'Diagnose and fix critical Unreal Editor stability issues, including raw-pointer crashes in async HTTP callbacks on UI tab closure, numeric version comparison in plugin update checks, and UTextureRenderTarget2D compilation errors.',
+      'Collaborate with ASU Capstone Team 2 and Pixel Pirate Studio sponsor engineers across Unreal Engine 5.8, Blender, Maya, and Cinema 4D workflows using Git/GitHub, Taiga, Discord, and Zoom.'
     ]
   },
-  // Drop your cleared videos (.mp4/.webm) and screenshots (.png/.jpg) into assets/unomi/ using these filenames
-  // (or update src paths below). Missing files show a clean technical placeholder until you add them.
+  // Four video showcase bays in the UNOMi room. Drop your .mp4 files into assets/unomi/ with these exact names.
   unomiMedia: [
     {
-      id: 'emotion-engine-demo',
+      id: 'morph-sliders',
+      slot: 'VIDEO 01 / 04',
       type: 'video',
-      src: 'assets/unomi/emotion-engine-demo.mp4',
-      title: 'UNOMi Emotion Engine // Live Demo',
-      subtitle: 'UE 5.8 C++ Plugin & Facial Morph Pipeline',
-      caption: 'Real-time Unreal Engine 5.8 capture of the UNOMi Emotion Engine driving 3D character facial morph targets from acoustic prosody and emotion probabilities.'
+      src: 'assets/unomi/morph-sliders.mp4',
+      title: 'Morph-Target Sliders // Live Rig',
+      subtitle: 'SFacialExpressionPanel Driving 3D Facial Morphs',
+      caption: 'Live Unreal Engine 5.8 capture moving the character rig in real time via name-aligned C++ Slate UI morph-target sliders and physics toggles across brows, eyes, cheeks, nose, ears, and mouth.'
     },
     {
-      id: 'slate-panel',
-      type: 'image',
-      src: 'assets/unomi/slate-panel.png',
-      title: 'SFacialExpressionPanel // Slate UI',
-      subtitle: 'Custom C++ Editor Tooling & Preset Blends',
-      caption: 'Unreal Engine 5.8 Slate UI panel built in C++ featuring facial morph-target sliders and preset emotion facial shape blends.'
-    },
-    {
-      id: 'eye-jitter-demo',
+      id: 'saved-emotions',
+      slot: 'VIDEO 02 / 04',
       type: 'video',
-      src: 'assets/unomi/eye-jitter-demo.mp4',
-      title: 'Material UV Eye Jitter & Lip Sync',
-      subtitle: 'Shader-Driven Micro-Saccades & Export',
-      caption: 'Material UV-driven eye jitter mechanics paired with lip-sync animation handling and animation data export inside Unreal Engine 5.8.'
+      src: 'assets/unomi/saved-emotions.mp4',
+      title: 'Preloaded Saved Emotions',
+      subtitle: '14 Emotion Presets via EmotionPresets.json',
+      caption: 'Opening and applying preloaded saved emotion presets stored in EmotionPresets.json (strength values + morph target bindings) directly inside the Unreal Engine 5.8 editor panel.'
     },
     {
-      id: 'morph-blends',
-      type: 'image',
-      src: 'assets/unomi/morph-blends.png',
-      title: 'Cross-DCC Workflow & Stability',
-      subtitle: 'Unreal Engine 5.8, Blender, Maya & Cinema 4D',
-      caption: 'Plugin workflow snapshots covering animation export compatibility, plugin update checks, and editor tab-closure stability fixes.'
+      id: 'speaking-emotions-1',
+      slot: 'VIDEO 03 / 04',
+      type: 'video',
+      src: 'assets/unomi/speaking-emotions-1.mp4',
+      title: 'Final Output I // Speaking with Emotions',
+      subtitle: 'External FastAPI Server (Kaldi + Wav2Vec2) -> UAnimSequence',
+      caption: 'End-to-end character dialogue generated by the external Cloud Run FastAPI inference server (parallel Kaldi forced alignment + INT8 Wav2Vec2 SER) and baked into a UAnimSequence via IAnimationDataController.'
+    },
+    {
+      id: 'speaking-emotions-2',
+      slot: 'VIDEO 04 / 04',
+      type: 'video',
+      src: 'assets/unomi/speaking-emotions-2.mp4',
+      title: 'Final Output II // Full Emotional Performance',
+      subtitle: 'Speech-Driven Expressions, Lip Sync & Material UV Eye Jitter',
+      caption: 'Second full speaking performance demonstrating emotional transitions, synchronized lip sync, and Material UV-driven eye jitter running live inside Unreal Engine 5.8.'
     }
   ],
   projects: [
@@ -156,19 +170,19 @@ export const C = {
     'Source control and code review workflow with Git and GitHub.',
     'Task and milestone tracking in Taiga.',
     'Day-to-day technical communication on Discord and Zoom.',
-    'Collaborating with ASU Capstone Team 2 and Pixel Pirate Studio sponsor engineers across Unreal Engine, Blender, Maya, and Cinema 4D pipelines.'
+    'Collaborating with ASU Capstone Team 2 and Pixel Pirate Studio sponsor engineers across Unreal Engine 5.8, Blender, Maya, and Cinema 4D pipelines.'
   ],
-  support: 'CSE 330 (Operating Systems), CSE 445 (Distributed Software Development), and CSE 464 (Software Quality Assurance & Testing) directly support the server architecture, real-time networking, and verification work across these projects.',
+  support: 'CSE 330 (Operating Systems), CSE 445 (Distributed Software Development), and CSE 464 (Software Quality Assurance & Testing) directly support the distributed client-server architecture, async networking, and verification work across UNOMi and these projects.',
   timeline: [
     ['Sept 2026 to Present [FOSTER TO CONFIRM]', 'UNOMi Software Update (Emotion Engine), Pixel Pirate Studio — Software Engineering Intern and ASU Senior Capstone (CSE 485)'],
     ['Expected 2027', 'B.S. Computer Science (Software Engineering), Arizona State University'],
     ['Projects', 'Multiplayer Battle Tetris, Real-Time Surf Report (surf-report), Web Audio Rhythm Beatmap Generator (dates [FOSTER TO CONFIRM])']
   ],
-  refs: [], // Add { who, what } entries here; section stays hidden while empty.
+  refs: [],
   skills: {
     'Languages': ['C++', 'C#', 'Python', 'JavaScript (ES6+)', 'SQL', 'HTML5', 'CSS3'],
-    'Engines, Graphics and Tools': ['Unreal Engine 5.8 (Slate UI, Morph Targets, Material UVs)', 'Blender API', 'Maya', 'HTML5 Canvas', 'Web Audio API', 'Git/GitHub', 'Visual Studio 2022', 'VS Code'],
-    'Backend, Testing and Architecture': ['Node.js', 'Express', 'WebSockets', 'PostgreSQL', 'REST APIs', 'C# WCF & ASP.NET', 'JUnit', 'Basis-Path & Control-Flow Graph Testing']
+    'Engines, Graphics and Tools': ['Unreal Engine 5.8 (Slate UI, IAnimationDataController, Morph Targets, Material UVs)', 'Blender API', 'Maya', 'HTML5 Canvas', 'Web Audio API', 'Git/GitHub', 'Visual Studio 2022', 'VS Code'],
+    'Backend, Testing and Architecture': ['Node.js', 'Express', 'WebSockets', 'PostgreSQL', 'REST APIs', 'FastAPI / Cloud Run Integration', 'C# WCF & ASP.NET', 'JUnit', 'Basis-Path & Control-Flow Graph Testing']
   },
   courses: [
     'CSE 485 — Computer Science Capstone I',

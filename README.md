@@ -11,19 +11,19 @@ python3 -m http.server 8000
 ```
 
 ## Deploy to GitHub Pages
-Copy all files from this folder directly into the root of `FosterBright18.github.io` (keep your existing `.git/` folder untouched) and push to `main`.
+Extract all files from the ZIP directly into the root of `FosterBright18.github.io` (keep your existing `.git/` folder untouched) and push to `main`.
 
-## Adding Your Real UNOMi Videos & Screenshots
-Room 2 (right after the Entry Hall) is a dedicated **UNOMi Emotion Engine Showcase Gallery** with 4 large framed media bays. Drop your cleared `.mp4`/`.webm` videos and `.png`/`.jpg` screenshots into `assets/unomi/`:
-- `assets/unomi/emotion-engine-demo.mp4`
-- `assets/unomi/slate-panel.png`
-- `assets/unomi/eye-jitter-demo.mp4`
-- `assets/unomi/morph-blends.png`
+## Adding Your 4 UNOMi Demo Videos
+Room 2 (right after the Entry Hall) is the **UNOMi Emotion Engine Showcase Gallery** with 4 dedicated video bays. Drop your sponsor-cleared `.mp4` videos into `assets/unomi/`:
+1. `assets/unomi/morph-sliders.mp4` — Model moving live with morph-target sliders
+2. `assets/unomi/saved-emotions.mp4` — Opening and applying preloaded saved emotions (`EmotionPresets.json`)
+3. `assets/unomi/speaking-emotions-1.mp4` — Final product: character speaking with emotions #1
+4. `assets/unomi/speaking-emotions-2.mp4` — Final product: character speaking with emotions #2
 
-Each frame auto-loads your real media on the 3D wall and opens a full-screen HD lightbox / video player when visitors press `E`. Edit titles, captions, or filenames anytime in `src/content.js` (`unomiMedia`).
+Videos auto-play muted on the 3D gallery wall and open with full audio and playback controls when visitors press `E`.
 
-## Enabling Live Anonymous Multiplayer Visitors
-`src/multiplayer.js` is already wired into the site. Deploy the ~45-line WebSocket server in `multiplayer-server/` (for example on Render, or mounted at `/presence` on your existing `multiplayer-battle-tetris` Render server) and paste its `wss://...` URL into `multiplayerWs` in `src/content.js`. Visitors will immediately appear as sleek anonymous avatars walking and jumping around the studio in real time.
+## Live Anonymous Multiplayer Presence
+Live visitor presence is wired to Firebase Realtime Database via `multiplayerWs` in `src/content.js` (`https://mywesbite-60d3a-default-rtdb.firebaseio.com`) and `src/multiplayer.js`.
 
 ## Update the static SEO fallback block
 Whenever you edit `src/content.js`, run:
@@ -33,7 +33,6 @@ node tools/generate-static.mjs
 
 ## Placeholders to fill in (`src/content.js`)
 - `linkedin` (`[LINKEDIN URL PLACEHOLDER]`)
-- `multiplayerWs` (optional `wss://` presence server URL)
 - `facts`: `Role interests`, `Availability`, `Work authorization`
 - `job.dates`: verify `Sept 2026 to Present [FOSTER TO CONFIRM dates]`
 - `unomiVerify`: confirm sponsor repository disclosure wording
@@ -42,7 +41,7 @@ node tools/generate-static.mjs
 - `refs`: optional `{ who, what }` references (hidden while empty)
 
 ## Sponsor confirmation note (UNOMi / Pixel Pirate Studio)
-Before publishing real captures in `assets/unomi/`, confirm with your Pixel Pirate Studio sponsor engineers what footage and screenshots of the UNOMi Emotion Engine and `UNOMi-Solutions/Unreal_Engine_Plugin` may be public.
+Before publishing real captures in `assets/unomi/`, confirm with your Pixel Pirate Studio sponsor engineers what footage of the UNOMi Emotion Engine and `UNOMi-Solutions/Unreal_Engine_Plugin` may be public.
 
 ## Play Mode iframe embedding note (Battle Tetris on Render)
 GitHub Pages sites (`surf-report` and `webaudio-rhythm-generator`) allow iframe embedding by default. If your `multiplayer-battle-tetris` Express server on Render blocks framing via `helmet()` or `X-Frame-Options`, add:
